@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'player.dart';
 
 class DetailsPage extends StatefulWidget {
   final String contentId;
@@ -15,19 +16,34 @@ class DetailsPage extends StatefulWidget {
 class ContentDetails {
   final String title;
   final String? desc;
+  final String? content;
   final String? imageUrl;
   final String? fileUrl;
+  final String? videoHlsUrl;
+  final String? trailerHlsUrl;
 
   ContentDetails({
     required this.title,
     this.desc,
+    this.content,
     this.imageUrl,
     this.fileUrl,
+    this.videoHlsUrl,
+    this.trailerHlsUrl,
   });
 
   factory ContentDetails.fromJson(Map<String, dynamic> json) {
-    // First access the 'content' key of the response
     Map<String, dynamic> content = json['content'];
+
+    // Helper function to convert relative HLS URL to an absolute URL
+    String makeAbsoluteHlsUrl(String relativeUrl) {
+      if (relativeUrl.startsWith('/files/')) {
+        // Replace the initial part of the path and prepend the base URL
+        return 'https://cdn.webdevxyz.com/media/' +
+            relativeUrl.substring('/files/'.length);
+      }
+      return relativeUrl; // Return as-is if not matching expected pattern
+    }
 
     return ContentDetails(
       title: content['title'] ?? 'N/A',
@@ -35,9 +51,14 @@ class ContentDetails {
           ? "https://cdn.webdevxyz.com/" + content['poster']
           : null, // Adjust according to your JSON and server setup
       desc: content['desc'] ?? 'No description provided.',
-      fileUrl:
-          content.containsKey('video') && content['video']['fileUrl'] != null
-              ? "https://cdn.webdevxyz.com/" + content['video']['fileUrl']
+      content: content['content'] ?? 'No content provided.',
+      videoHlsUrl:
+          content.containsKey('video') && content['video']['hlsUrl'] != null
+              ? makeAbsoluteHlsUrl(content['video']['hlsUrl'])
+              : null,
+      trailerHlsUrl:
+          content.containsKey('trailer') && content['trailer']['hlsUrl'] != null
+              ? makeAbsoluteHlsUrl(content['trailer']['hlsUrl'])
               : null,
     );
   }
@@ -84,6 +105,35 @@ class _DetailsPageState extends State<DetailsPage> {
                       height: 300.0,
                       fit: BoxFit.cover,
                     ),
+
+                    SizedBox(
+                        height:
+                            20), // Add space between the image and the button
+
+                    // Inside the Column of your DetailsPage UI builder:
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PlayerScreen(hlsUrl: details.trailerHlsUrl!)),
+                        );
+                      },
+                      child: Text('Watch Trailer'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PlayerScreen(hlsUrl: details.videoHlsUrl!)),
+                        );
+                      },
+                      child: Text('Play'),
+                    ),
+
                     Padding(
                       padding: EdgeInsets.all(16.0),
                       child: Column(
@@ -96,6 +146,11 @@ class _DetailsPageState extends State<DetailsPage> {
                           Text(
                             details.desc ??
                                 'No description provided.', // Provide a fallback value if desc is null
+                            style: Theme.of(context).textTheme.bodyText2,
+                          ),
+                          Text(
+                            details.content ??
+                                'No content provided.', // Provide a fallback value if desc is null
                             style: Theme.of(context).textTheme.bodyText2,
                           )
                         ],
