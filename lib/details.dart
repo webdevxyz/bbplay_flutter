@@ -116,19 +116,34 @@ class _DetailsPageState extends State<DetailsPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  PlayerScreen(hlsUrl: details.trailerHlsUrl!)),
+                            builder: (context) => PlayerScreen(
+                              hlsUrl: details
+                                  .trailerHlsUrl!, // Ensure this is the correct property for the HLS URL
+                              title: details
+                                  .title, // Pass the title from your details object
+                              isTrailer:
+                                  true, // Indicating this is for playing a trailer
+                            ),
+                          ),
                         );
                       },
                       child: Text('Watch Trailer'),
                     ),
+
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  PlayerScreen(hlsUrl: details.videoHlsUrl!)),
+                            builder: (context) => PlayerScreen(
+                              hlsUrl: details
+                                  .videoHlsUrl!, // Ensure this is the correct property for the HLS URL
+                              title: details
+                                  .title, // Pass the title from your details object
+                              isTrailer:
+                                  false, // Indicating this is not a trailer, but the main content
+                            ),
+                          ),
                         );
                       },
                       child: Text('Play'),
