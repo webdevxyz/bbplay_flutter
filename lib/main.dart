@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
             child: Text('Login',
                 style: TextStyle(
                     color: Colors
-                        .white)), // TextButton uses the default text style, so we need to explicitly set the color to white
+                        .purple)), // TextButton uses the default text style, so we need to explicitly set the color to white
             onPressed: () {
               // Navigate to login screen
             },
@@ -184,19 +184,29 @@ class SectionCarousel extends StatelessWidget {
       items: section.list.map((movie) {
         return Builder(
           builder: (BuildContext context) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: CachedNetworkImage(
-                imageUrl: movie.banner!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Container(
-                  alignment: Alignment.center,
-                  color: Colors.grey,
-                  child: Text(
-                    movie.title,
-                    style: TextStyle(color: Colors.white),
+            return GestureDetector(
+              onTap: () {
+                // Navigate to DetailsPage when a carousel card is tapped
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailsPage(contentId: movie.id),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: movie.banner!,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Container(
+                    alignment: Alignment.center,
+                    color: Colors.grey,
+                    child: Text(
+                      movie.title,
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
@@ -207,6 +217,9 @@ class SectionCarousel extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class SectionWidget extends StatelessWidget {
   final Section section;
