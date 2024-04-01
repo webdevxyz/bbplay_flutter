@@ -14,9 +14,35 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BBPlay',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      theme: ThemeData.dark().copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        primaryColor: Colors.blue,
+        hintColor: Colors.purple,
+        appBarTheme: AppBarTheme(
+          color: Colors.black45,
+          iconTheme: IconThemeData(color: Colors.white),
+          toolbarTextStyle: TextTheme(
+            headline6: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ).bodyText2,
+          titleTextStyle: TextTheme(
+            headline6: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ).headline6,
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor:
+              Colors.grey[900], // Choose a color that contrasts well with white
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white.withOpacity(
+              0.6), // Slightly dim unselected items for better visual distinction
+        ),
       ),
       home: HomePage(),
     );
@@ -30,8 +56,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<Section>> sections;
-  int _selectedIndex =
-      0; // Add this line to manage the bottom navigation bar index
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -54,29 +79,23 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
-    // Add navigation logic based on the index if necessary
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.search),
-          onPressed: () {
-            // Implement search functionality
-          },
+          onPressed: () {},
         ),
-        title: Text('BBPlay'),
+        title: Text('BBPlay', style: TextStyle(color: Colors.white)),
         actions: <Widget>[
-          TextButton(
-            child: Text('Login',
-                style: TextStyle(
-                    color: Colors
-                        .purple)), // TextButton uses the default text style, so we need to explicitly set the color to white
-            onPressed: () {
-              // Navigate to login screen
-            },
+          IconButton(
+            icon: Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {},
           ),
         ],
       ),
@@ -87,11 +106,9 @@ class _HomePageState extends State<HomePage> {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                // Use CarouselSlider for the first section
                 if (index == 0) {
                   return SectionCarousel(section: snapshot.data![index]);
                 }
-                // Use horizontal list view for other sections
                 return SectionWidget(section: snapshot.data![index]);
               },
             );
@@ -103,18 +120,11 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+              icon: Icon(Icons.category), label: 'Categories'),
+          BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
+          BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -132,25 +142,17 @@ class Section {
   factory Section.fromJson(Map<String, dynamic> json) {
     var list = json['list'] as List;
     List<Movie> movieList = list.map((i) => Movie.fromJson(i)).toList();
-
-    return Section(
-      name: json['name'],
-      list: movieList,
-    );
+    return Section(name: json['name'], list: movieList);
   }
 }
 
 class Movie {
-  final String _id;
+  final String id;
   final String title;
   final String? poster;
   final String? banner;
 
-  Movie({required this.title, this.poster, this.banner, required String id})
-      : _id = id; // Initialize the _id in the constructor
-
-  // Add a getter for _id
-  String get id => _id;
+  Movie({required this.id, required this.title, this.poster, this.banner});
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
@@ -175,41 +177,67 @@ class SectionCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     return CarouselSlider(
       options: CarouselOptions(
-        aspectRatio: 16 / 9,
         enlargeCenterPage: true,
         autoPlay: true,
         autoPlayInterval: Duration(seconds: 3),
         autoPlayAnimationDuration: Duration(milliseconds: 800),
+        aspectRatio: 16 / 9,
       ),
       items: section.list.map((movie) {
         return Builder(
           builder: (BuildContext context) {
-            return GestureDetector(
-              onTap: () {
-                // Navigate to DetailsPage when a carousel card is tapped
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailsPage(contentId: movie.id),
-                  ),
-                );
-              },
+            return Container(
+              width: MediaQuery.of(context).size.width,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: movie.banner!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                  errorWidget: (context, url, error) => Container(
-                    alignment: Alignment.center,
-                    color: Colors.grey,
-                    child: Text(
-                      movie.title,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
+                  borderRadius: BorderRadius.circular(
+                      10), // Apply border radius to the image
+                  child: Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10), // Apply border radius here
+                        child: CachedNetworkImage(
+                          imageUrl: movie.banner!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => Container(
+                            alignment: Alignment.center,
+                            color: Colors.grey,
+                            child: Icon(Icons.error, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.black
+                                .withOpacity(0.5), // Tint color with opacity
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(
+                                  10), // Match bottom corners of the image
+                              bottomRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            movie.title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
             );
           },
         );
@@ -217,9 +245,6 @@ class SectionCarousel extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class SectionWidget extends StatelessWidget {
   final Section section;
@@ -236,10 +261,8 @@ class SectionWidget extends StatelessWidget {
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text(
-              section.name,
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-            ),
+            child: Text(section.name,
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500)),
           ),
           Expanded(
             child: ListView.builder(
@@ -266,30 +289,26 @@ class MovieCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailsPage(contentId: movie.id),
-          ),
-        );
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailsPage(contentId: movie.id)));
       },
-      child: Container(
-        width: 140.0,
-        padding: const EdgeInsets.all(4.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: CachedNetworkImage(
-            imageUrl: movie.poster!,
-            fit: BoxFit.cover,
-            placeholder: (context, url) =>
-                Center(child: CircularProgressIndicator()),
-            errorWidget: (context, url, error) => Container(
-              color: Colors.grey,
-              child: Center(
-                child: Text(
-                  movie.title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white),
-                ),
+      child: Material(
+        elevation: 5.0,
+        borderRadius: BorderRadius.circular(8.0),
+        child: Container(
+          width: 120.0,
+          padding: const EdgeInsets.all(4.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: CachedNetworkImage(
+              imageUrl: movie.poster!,
+              fit: BoxFit.cover,
+              placeholder: (context, url) =>
+                  Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => Container(
+                color: Colors.grey,
+                child: Icon(Icons.error, color: Colors.white),
               ),
             ),
           ),

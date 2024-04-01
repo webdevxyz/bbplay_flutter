@@ -58,27 +58,28 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ]);
   }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      // Set the background color of the AppBar with 20% opacity black
-      backgroundColor: Colors.black.withOpacity(0.1),
-      // Set the icon theme to ensure back button and other icons are white
-      iconTheme: IconThemeData(color: Colors.white.withOpacity(0.8)),
-      // Set the title with custom text style
-      title: Text(
-        widget.isTrailer ? '${widget.title} - Trailer' : widget.title,
-        // Apply a TextStyle to change the color to white with 80% opacity
-        style: TextStyle(color: const Color.fromARGB(255, 60, 60, 60).withOpacity(0.8)),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Set the background color of the AppBar with 20% opacity black
+        backgroundColor: Colors.black.withOpacity(0),
+        // Set the icon theme to ensure back button and other icons are white
+        iconTheme: IconThemeData(
+            color: const Color.fromARGB(0, 255, 255, 255).withOpacity(0.8)),
+        // Set the title with custom text style
+        title: Text(
+          widget.isTrailer ? '${widget.title} - Trailer' : widget.title,
+          // Apply a TextStyle to change the color to white with 80% opacity
+          style: TextStyle(
+              color: Color.fromARGB(255, 173, 166, 166).withOpacity(0.8)),
+        ),
+        // Ensures that the text and icons (if any) in the AppBar are white with the desired opacity
+        foregroundColor: Colors.white.withOpacity(0.8),
       ),
-      // Ensures that the text and icons (if any) in the AppBar are white with the desired opacity
-      foregroundColor: Colors.white.withOpacity(0.8),
-    ),
-    body: FlickVideoPlayer(
-      flickManager: flickManager,
-    ),
-  );
-}
-
+      body: FlickVideoPlayer(
+        flickManager: flickManager,
+      ),
+    );
+  }
 }
