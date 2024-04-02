@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'player.dart';
+import 'casts.dart';
 
 class DetailsPage extends StatefulWidget {
   final String contentId;
@@ -13,6 +14,29 @@ class DetailsPage extends StatefulWidget {
   _DetailsPageState createState() => _DetailsPageState();
 }
 
+// Define a Cast class to model each cast member's details
+class Cast {
+  final String name;
+  final String bio;
+  final String type;
+  final String imageUrl;
+
+  Cast(
+      {required this.name,
+      required this.bio,
+      required this.type,
+      required this.imageUrl});
+
+  factory Cast.fromJson(Map<String, dynamic> json) {
+    return Cast(
+      name: json['name'],
+      bio: json['bio'],
+      type: json['type'],
+      imageUrl: "https://cdn.webdevxyz.com/" + json['image'],
+    );
+  }
+}
+
 class ContentDetails {
   final String title;
   final String? desc;
@@ -21,6 +45,7 @@ class ContentDetails {
   final String? fileUrl;
   final String? videoHlsUrl;
   final String? trailerHlsUrl;
+  final List<Cast> cast;
 
   ContentDetails({
     required this.title,
@@ -30,6 +55,7 @@ class ContentDetails {
     this.fileUrl,
     this.videoHlsUrl,
     this.trailerHlsUrl,
+    required this.cast,
   });
 
   factory ContentDetails.fromJson(Map<String, dynamic> json) {
@@ -44,6 +70,10 @@ class ContentDetails {
       }
       return relativeUrl; // Return as-is if not matching expected pattern
     }
+
+    List<Cast> castList = (json['content']['cast'] as List)
+        .map((castJson) => Cast.fromJson(castJson))
+        .toList();
 
     return ContentDetails(
       title: content['title'] ?? 'N/A',
@@ -60,6 +90,7 @@ class ContentDetails {
           content.containsKey('trailer') && content['trailer']['hlsUrl'] != null
               ? makeAbsoluteHlsUrl(content['trailer']['hlsUrl'])
               : null,
+      cast: castList,
     );
   }
 }
@@ -108,49 +139,54 @@ class _DetailsPageState extends State<DetailsPage> {
 
                     SizedBox(
                         height:
-                            20), // Add space between the image and the button
+                            10), // Add space between the image and the button
 
-                    // Inside the Column of your DetailsPage UI builder:
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PlayerScreen(
-                              hlsUrl: details
-                                  .trailerHlsUrl!, // Ensure this is the correct property for the HLS URL
-                              title: details
-                                  .title, // Pass the title from your details object
-                              isTrailer:
-                                  true, // Indicating this is for playing a trailer
-                            ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.play_arrow),
+                            label: Text('Watch Trailer'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PlayerScreen(
+                                    hlsUrl: details
+                                        .trailerHlsUrl!, // Make sure this is correctly retrieved
+                                    title: details.title,
+                                    isTrailer: true,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                      child: Text('Watch Trailer'),
-                    ),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PlayerScreen(
-                              hlsUrl: details
-                                  .videoHlsUrl!, // Ensure this is the correct property for the HLS URL
-                              title: details
-                                  .title, // Pass the title from your details object
-                              isTrailer:
-                                  false, // Indicating this is not a trailer, but the main content
-                            ),
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.movie),
+                            label: Text('Play Now'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PlayerScreen(
+                                    hlsUrl: details
+                                        .videoHlsUrl!, // Make sure this is correctly retrieved
+                                    title: details.title,
+                                    isTrailer: false,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                      child: Text('Play'),
+                        ],
+                      ),
                     ),
 
                     Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(10.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -161,13 +197,67 @@ class _DetailsPageState extends State<DetailsPage> {
                           SizedBox(height: 20),
                           Text(
                             details.desc ??
-                                'No description provided.', // Provide a fallback value if desc is null
+                                '', // Provide a fallback value if desc is null
                             style: Theme.of(context).textTheme.bodyText2,
                           ),
                           SizedBox(height: 20),
+                          if (details.cast.isNotEmpty) ...[
+                            Padding(
+                              padding: EdgeInsets.only(left: 16),
+                              child: Text(
+                                'CastS',
+                                style: Theme.of(context).textTheme.headline6,
+                              ),
+                            ),
+                            Container(
+                              height: 170,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: details.cast.length,
+                                itemBuilder: (context, index) {
+                                  Cast castMember = details.cast[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CastDetailsPage(
+                                              castMember: castMember),
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: <Widget>[
+                                          CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                                castMember.imageUrl),
+                                            radius: 50,
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            castMember.name,
+                                            style: TextStyle(fontSize: 12),
+                                            overflow: TextOverflow
+                                                .ellipsis, // Add this line
+                                            maxLines: 1,
+                                          ),
+                                          Text(
+                                            castMember.type,
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                           Text(
                             details.content ??
-                                'No content provided.', // Provide a fallback value if desc is null
+                                '', // Provide a fallback value if desc is null
                             style: Theme.of(context).textTheme.bodyText2,
                           )
                         ],

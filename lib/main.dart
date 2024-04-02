@@ -305,10 +305,11 @@ class MovieCard extends StatelessWidget {
                 builder: (context) => DetailsPage(contentId: movie.id)));
       },
       child: Material(
-        elevation: 5.0,
-        borderRadius: BorderRadius.circular(8.0),
+        elevation: 4.0,
+        borderRadius: BorderRadius.circular(5.0),
         child: Container(
-          width: 120.0,
+          width: 120,
+          height: 160,
           padding: const EdgeInsets.all(4.0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
