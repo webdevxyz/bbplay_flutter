@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BBPlay',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Colors.blue,

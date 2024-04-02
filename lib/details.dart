@@ -224,23 +224,6 @@ class _DetailsPageState extends State<DetailsPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton.icon(
-                            icon: Icon(Icons.play_arrow),
-                            label: Text('Watch Trailer'),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PlayerScreen(
-                                    hlsUrl: details
-                                        .trailerHlsUrl!, // Make sure this is correctly retrieved
-                                    title: details.title,
-                                    isTrailer: true,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          ElevatedButton.icon(
                             icon: Icon(Icons.movie),
                             label: Text('Play Now'),
                             onPressed: () {
@@ -252,6 +235,23 @@ class _DetailsPageState extends State<DetailsPage> {
                                         .videoHlsUrl!, // Make sure this is correctly retrieved
                                     title: details.title,
                                     isTrailer: false,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.play_arrow),
+                            label: Text('Watch Trailer'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PlayerScreen(
+                                    hlsUrl: details
+                                        .trailerHlsUrl!, // Make sure this is correctly retrieved
+                                    title: details.title,
+                                    isTrailer: true,
                                   ),
                                 ),
                               );
