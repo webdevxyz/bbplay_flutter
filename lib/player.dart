@@ -28,7 +28,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     flickManager = FlickManager(
       videoPlayerController: VideoPlayerController.network(widget.hlsUrl),
     );
-    // Set landscape orientation
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setLandscapeOrientation();
     });
@@ -37,17 +37,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   void dispose() {
     flickManager.dispose();
-    // Set orientation back to portrait when exiting the player
     _resetOrientation();
     super.dispose();
   }
 
   Future<void> _setLandscapeOrientation() async {
-    await Future.wait([
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeRight,
-        DeviceOrientation.landscapeLeft,
-      ]),
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
     ]);
   }
 
@@ -62,23 +59,29 @@ class _PlayerScreenState extends State<PlayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Set the background color of the AppBar with 20% opacity black
-        backgroundColor: Colors.black.withOpacity(0),
-        // Set the icon theme to ensure back button and other icons are white
+        backgroundColor: Colors.black.withOpacity(0.4),
         iconTheme: IconThemeData(
             color: const Color.fromARGB(0, 255, 255, 255).withOpacity(0.8)),
-        // Set the title with custom text style
         title: Text(
           widget.isTrailer ? '${widget.title} - Trailer' : widget.title,
-          // Apply a TextStyle to change the color to white with 80% opacity
-          style: TextStyle(
-              color: Color.fromARGB(255, 173, 166, 166).withOpacity(0.8)),
+          style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         ),
-        // Ensures that the text and icons (if any) in the AppBar are white with the desired opacity
         foregroundColor: Colors.white.withOpacity(0.8),
       ),
-      body: FlickVideoPlayer(
-        flickManager: flickManager,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: FlickVideoPlayer(
+          flickManager: flickManager,
+          flickVideoWithControls: FlickVideoWithControls(
+            videoFit: BoxFit.cover, // Make video fill the container
+            controls: FlickLandscapeControls(),
+          ),
+          flickVideoWithControlsFullscreen: FlickVideoWithControls(
+            videoFit: BoxFit.cover, // Use BoxFit.cover to fill the screen
+            controls: FlickLandscapeControls(),
+          ),
+        ),
       ),
     );
   }

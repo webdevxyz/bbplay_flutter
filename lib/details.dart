@@ -47,8 +47,8 @@ class ContentDetails {
 
     return ContentDetails(
       title: content['title'] ?? 'N/A',
-      imageUrl: content.containsKey('poster')
-          ? "https://cdn.webdevxyz.com/" + content['poster']
+      imageUrl: content.containsKey('banner')
+          ? "https://cdn.webdevxyz.com/" + content['banner']
           : null, // Adjust according to your JSON and server setup
       desc: content['desc'] ?? 'No description provided.',
       content: content['content'] ?? 'No content provided.',
@@ -158,11 +158,13 @@ class _DetailsPageState extends State<DetailsPage> {
                             details.title,
                             style: Theme.of(context).textTheme.headline5,
                           ),
+                          SizedBox(height: 20),
                           Text(
                             details.desc ??
                                 'No description provided.', // Provide a fallback value if desc is null
                             style: Theme.of(context).textTheme.bodyText2,
                           ),
+                          SizedBox(height: 20),
                           Text(
                             details.content ??
                                 'No content provided.', // Provide a fallback value if desc is null

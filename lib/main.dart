@@ -179,24 +179,33 @@ class SectionCarousel extends StatelessWidget {
       options: CarouselOptions(
         enlargeCenterPage: true,
         autoPlay: true,
-        autoPlayInterval: Duration(seconds: 3),
+        autoPlayInterval: Duration(seconds: 10),
         autoPlayAnimationDuration: Duration(milliseconds: 800),
         aspectRatio: 16 / 9,
       ),
       items: section.list.map((movie) {
         return Builder(
           builder: (BuildContext context) {
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                      10), // Apply border radius to the image
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailsPage(contentId: movie.id),
+                  ),
+                );
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: ClipRRect(
+                  // Modify this line to apply borderRadius to all corners
+                  borderRadius: BorderRadius.circular(10),
                   child: Stack(
                     alignment: Alignment.bottomLeft,
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(
-                            10), // Apply border radius here
+                            10), // This applies the border radius to the image
                         child: CachedNetworkImage(
                           imageUrl: movie.banner!,
                           fit: BoxFit.cover,
@@ -217,11 +226,10 @@ class SectionCarousel extends StatelessWidget {
                           padding:
                               EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                           decoration: BoxDecoration(
-                            color: Colors.black
-                                .withOpacity(0.5), // Tint color with opacity
+                            color: Colors.black.withOpacity(0.5),
+                            // This decoration applies to the text container, adjust here if you want to change the bottom container's border radius
                             borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(
-                                  10), // Match bottom corners of the image
+                              bottomLeft: Radius.circular(10),
                               bottomRight: Radius.circular(10),
                             ),
                           ),
@@ -237,7 +245,9 @@ class SectionCarousel extends StatelessWidget {
                         ),
                       ),
                     ],
-                  )),
+                  ),
+                ),
+              ),
             );
           },
         );
@@ -266,6 +276,7 @@ class SectionWidget extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
+              padding: EdgeInsets.zero,
               scrollDirection: Axis.horizontal,
               itemCount: section.list.length,
               itemBuilder: (context, index) {
