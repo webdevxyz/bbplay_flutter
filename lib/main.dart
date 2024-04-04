@@ -75,6 +75,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _refresh() async {
+    setState(() {
+      sections = fetchSections();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,27 +94,30 @@ class _HomePageState extends State<HomePage> {
           IconButton(icon: const Icon(Icons.person), onPressed: () {}),
         ],
       ),
-      body: FutureBuilder<List<Section>>(
-        future: sections,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-            return const Text('No data found');
-          }
-          return ListView(
-            children: snapshot.data!.asMap().entries.map((entry) {
-              int idx = entry.key;
-              Section section = entry.value;
-              return SectionWidget(
-                section: section,
-                isSlider: idx == 0, // Only the first section will be a slider
-              );
-            }).toList(),
-          );
-        },
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: FutureBuilder<List<Section>>(
+          future: sections,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+              return const Text('No data found');
+            }
+            return ListView(
+              children: snapshot.data!.asMap().entries.map((entry) {
+                int idx = entry.key;
+                Section section = entry.value;
+                return SectionWidget(
+                  section: section,
+                  isSlider: idx == 0, // Only the first section will be a slider
+                );
+              }).toList(),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
