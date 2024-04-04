@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flick_video_player/flick_video_player.dart';
@@ -9,11 +11,11 @@ class PlayerScreen extends StatefulWidget {
   final bool isTrailer;
 
   const PlayerScreen({
-    Key? key,
+    super.key,
     required this.hlsUrl,
     required this.title,
     this.isTrailer = false,
-  }) : super(key: key);
+  });
 
   @override
   _PlayerScreenState createState() => _PlayerScreenState();
@@ -64,20 +66,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
             color: const Color.fromARGB(0, 255, 255, 255).withOpacity(0.8)),
         title: Text(
           widget.isTrailer ? '${widget.title} - Trailer' : widget.title,
-          style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         ),
         foregroundColor: Colors.white.withOpacity(0.8),
       ),
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: FlickVideoPlayer(
           flickManager: flickManager,
-          flickVideoWithControls: FlickVideoWithControls(
+          flickVideoWithControls: const FlickVideoWithControls(
             videoFit: BoxFit.cover, // Make video fill the container
             controls: FlickLandscapeControls(),
           ),
-          flickVideoWithControlsFullscreen: FlickVideoWithControls(
+          flickVideoWithControlsFullscreen: const FlickVideoWithControls(
             videoFit: BoxFit.cover, // Use BoxFit.cover to fill the screen
             controls: FlickLandscapeControls(),
           ),

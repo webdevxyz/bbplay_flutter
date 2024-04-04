@@ -1,7 +1,7 @@
 // File: android/build.gradle
 
 buildscript {
-    ext.kotlin_version = '1.5.20' // Set the Kotlin version here
+    ext.kotlin_version = '1.6.21' // Set the Kotlin version here
 
     repositories {
         google()
@@ -9,7 +9,8 @@ buildscript {
     }
     
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0' // Example version, use the version required by your project
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        // Example version, use the version required by your project
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }

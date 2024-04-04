@@ -1,4 +1,6 @@
 // details.dart
+// ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -9,7 +11,7 @@ import 'casts.dart';
 class DetailsPage extends StatefulWidget {
   final String contentId;
 
-  DetailsPage({Key? key, required this.contentId}) : super(key: key);
+  const DetailsPage({super.key, required this.contentId});
 
   @override
   _DetailsPageState createState() => _DetailsPageState();
@@ -131,7 +133,7 @@ class ContentDetails {
 class RelatedContentCard extends StatelessWidget {
   final RelatedContent content;
 
-  RelatedContentCard({required this.content});
+  const RelatedContentCard({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +160,10 @@ class RelatedContentCard extends StatelessWidget {
               imageUrl: content.posterUrl,
               fit: BoxFit.cover,
               placeholder: (context, url) =>
-                  Center(child: CircularProgressIndicator()),
+                  const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => Container(
                 color: Colors.grey,
-                child: Icon(Icons.error, color: Colors.white),
+                child: const Icon(Icons.error, color: Colors.white),
               ),
             ),
           ),
@@ -194,7 +196,7 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Details'),
+        title: const Text('Details'),
       ),
       body: FutureBuilder<ContentDetails>(
         future: contentDetails,
@@ -213,19 +215,19 @@ class _DetailsPageState extends State<DetailsPage> {
                       fit: BoxFit.cover,
                     ),
 
-                    SizedBox(
+                    const SizedBox(
                         height:
                             10), // Add space between the image and the button
 
                     Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           ElevatedButton.icon(
-                            icon: Icon(Icons.movie),
-                            label: Text('Play Now'),
+                            icon: const Icon(Icons.movie),
+                            label: const Text('Play Now'),
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -241,8 +243,8 @@ class _DetailsPageState extends State<DetailsPage> {
                             },
                           ),
                           ElevatedButton.icon(
-                            icon: Icon(Icons.play_arrow),
-                            label: Text('Watch Trailer'),
+                            icon: const Icon(Icons.play_arrow),
+                            label: const Text('Watch Trailer'),
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -262,30 +264,30 @@ class _DetailsPageState extends State<DetailsPage> {
                     ),
 
                     Padding(
-                      padding: EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             details.title,
-                            style: Theme.of(context).textTheme.headline5,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
                             details.desc ??
                                 '', // Provide a fallback value if desc is null
-                            style: Theme.of(context).textTheme.bodyText2,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           if (details.cast.isNotEmpty) ...[
                             Padding(
-                              padding: EdgeInsets.only(left: 0),
+                              padding: const EdgeInsets.only(left: 0),
                               child: Text(
                                 'Casts',
-                                style: Theme.of(context).textTheme.headline6,
+                                style: Theme.of(context).textTheme.titleLarge,
                               ),
                             ),
-                            Container(
+                            SizedBox(
                               height: 170,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -311,17 +313,19 @@ class _DetailsPageState extends State<DetailsPage> {
                                                 castMember.imageUrl),
                                             radius: 50,
                                           ),
-                                          SizedBox(height: 10),
+                                          const SizedBox(height: 10),
                                           Text(
                                             castMember.name,
-                                            style: TextStyle(fontSize: 12),
+                                            style:
+                                                const TextStyle(fontSize: 12),
                                             overflow: TextOverflow
                                                 .ellipsis, // Add this line
                                             maxLines: 1,
                                           ),
                                           Text(
                                             castMember.type,
-                                            style: TextStyle(fontSize: 12),
+                                            style:
+                                                const TextStyle(fontSize: 12),
                                           ),
                                         ],
                                       ),
@@ -335,13 +339,13 @@ class _DetailsPageState extends State<DetailsPage> {
                           // Inside the DetailsPage widget, after loading the content details
                           if (details.relatedContent.isNotEmpty) ...[
                             Padding(
-                              padding: EdgeInsets.only(left: 0, top: 20),
+                              padding: const EdgeInsets.only(left: 0, top: 20),
                               child: Text(
                                 'Related Content',
                                 style: Theme.of(context).textTheme.headline6,
                               ),
                             ),
-                            Container(
+                            SizedBox(
                               height: 180, // Adjust based on your UI needs
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -355,11 +359,11 @@ class _DetailsPageState extends State<DetailsPage> {
                             ),
                           ],
 
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
                             details.content ??
                                 '', // Provide a fallback value if desc is null
-                            style: Theme.of(context).textTheme.bodyText2,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           )
                         ],
                       ),
@@ -371,7 +375,7 @@ class _DetailsPageState extends State<DetailsPage> {
               return Center(child: Text("${snapshot.error}"));
             }
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );

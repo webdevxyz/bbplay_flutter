@@ -5,7 +5,7 @@ import 'details.dart'; // Import the file where Cast class is defined.
 class CastDetailsPage extends StatelessWidget {
   final Cast castMember;
 
-  CastDetailsPage({Key? key, required this.castMember}) : super(key: key);
+  const CastDetailsPage({super.key, required this.castMember});
 
   @override
   Widget build(BuildContext context) {
@@ -22,23 +22,23 @@ class CastDetailsPage extends StatelessWidget {
               fit: BoxFit.cover,
             ),
             Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
                     castMember.name,
-                    style: Theme.of(context).textTheme.headline6,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     castMember.type,
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     castMember.bio,
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ),

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,10 +8,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'details.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,21 +25,21 @@ class MyApp extends StatelessWidget {
         hintColor: Colors.purple,
         appBarTheme: AppBarTheme(
           color: Colors.black45,
-          iconTheme: IconThemeData(color: Colors.white),
-          toolbarTextStyle: TextTheme(
-            headline6: TextStyle(
+          iconTheme: const IconThemeData(color: Colors.white),
+          toolbarTextStyle: const TextTheme(
+            titleLarge: TextStyle(
               color: Colors.white,
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
             ),
-          ).bodyText2,
-          titleTextStyle: TextTheme(
-            headline6: TextStyle(
+          ).bodyMedium,
+          titleTextStyle: const TextTheme(
+            titleLarge: TextStyle(
               color: Colors.white,
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
             ),
-          ).headline6,
+          ).titleLarge,
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor:
@@ -89,13 +93,13 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.search),
+          icon: const Icon(Icons.search),
           onPressed: () {},
         ),
-        title: Text('BBPlay', style: TextStyle(color: Colors.white)),
+        title: const Text('BBPlay', style: TextStyle(color: Colors.white)),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white),
+            icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -116,7 +120,7 @@ class _HomePageState extends State<HomePage> {
           } else if (snapshot.hasError) {
             return Center(child: Text("${snapshot.error}"));
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -160,9 +164,11 @@ class Movie {
       id: json['_id'],
       title: json['title'],
       poster: json.containsKey('poster')
+          // ignore: prefer_interpolation_to_compose_strings
           ? "https://cdn.webdevxyz.com/" + json['poster']
           : null,
       banner: json.containsKey('banner')
+          // ignore: prefer_interpolation_to_compose_strings
           ? "https://cdn.webdevxyz.com/" + json['banner']
           : null,
     );
@@ -180,8 +186,8 @@ class SectionCarousel extends StatelessWidget {
       options: CarouselOptions(
         enlargeCenterPage: true,
         autoPlay: true,
-        autoPlayInterval: Duration(seconds: 10),
-        autoPlayAnimationDuration: Duration(milliseconds: 800),
+        autoPlayInterval: const Duration(seconds: 10),
+        autoPlayAnimationDuration: const Duration(milliseconds: 800),
         aspectRatio: 16 / 9,
       ),
       items: section.list.map((movie) {
@@ -196,7 +202,7 @@ class SectionCarousel extends StatelessWidget {
                   ),
                 );
               },
-              child: Container(
+              child: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: ClipRRect(
                   // Modify this line to apply borderRadius to all corners
@@ -211,11 +217,11 @@ class SectionCarousel extends StatelessWidget {
                           imageUrl: movie.banner!,
                           fit: BoxFit.cover,
                           placeholder: (context, url) =>
-                              Center(child: CircularProgressIndicator()),
+                              const Center(child: CircularProgressIndicator()),
                           errorWidget: (context, url, error) => Container(
                             alignment: Alignment.center,
                             color: Colors.grey,
-                            child: Icon(Icons.error, color: Colors.white),
+                            child: const Icon(Icons.error, color: Colors.white),
                           ),
                         ),
                       ),
@@ -224,19 +230,19 @@ class SectionCarousel extends StatelessWidget {
                         left: 0,
                         right: 0,
                         child: Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 5, horizontal: 10),
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.5),
                             // This decoration applies to the text container, adjust here if you want to change the bottom container's border radius
-                            borderRadius: BorderRadius.only(
+                            borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(10),
                               bottomRight: Radius.circular(10),
                             ),
                           ),
                           child: Text(
                             movie.title,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
@@ -260,11 +266,11 @@ class SectionCarousel extends StatelessWidget {
 class SectionWidget extends StatelessWidget {
   final Section section;
 
-  SectionWidget({required this.section});
+  const SectionWidget({super.key, required this.section});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 220.0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +279,8 @@ class SectionWidget extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(section.name,
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500)),
+                style: const TextStyle(
+                    fontSize: 16.0, fontWeight: FontWeight.w500)),
           ),
           Expanded(
             child: ListView.builder(
@@ -294,7 +301,7 @@ class SectionWidget extends StatelessWidget {
 class MovieCard extends StatelessWidget {
   final Movie movie;
 
-  MovieCard({required this.movie});
+  const MovieCard({super.key, required this.movie});
 
   @override
   Widget build(BuildContext context) {
@@ -318,10 +325,10 @@ class MovieCard extends StatelessWidget {
               imageUrl: movie.poster!,
               fit: BoxFit.cover,
               placeholder: (context, url) =>
-                  Center(child: CircularProgressIndicator()),
+                  const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => Container(
                 color: Colors.grey,
-                child: Icon(Icons.error, color: Colors.white),
+                child: const Icon(Icons.error, color: Colors.white),
               ),
             ),
           ),
