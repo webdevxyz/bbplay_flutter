@@ -1,18 +1,17 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'details.dart'; // Make sure this path correctly leads to your DetailsPage
+import 'player.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +22,13 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Colors.white,
         scaffoldBackgroundColor: Colors.white,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           color: Colors.white,
           iconTheme: IconThemeData(color: Colors.black),
           titleTextStyle: TextStyle(
               color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: Colors.white,
           selectedItemColor: Colors.black,
           unselectedItemColor: Colors.grey,
@@ -41,7 +40,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -80,28 +79,31 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: Icon(Icons.menu), onPressed: () {}),
-        title: Text('BBPlay', style: TextStyle(color: Colors.black)),
+        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
+        title: const Text('BBPlay', style: TextStyle(color: Colors.black)),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.person), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.person), onPressed: () {}),
         ],
       ),
       body: FutureBuilder<List<Section>>(
         future: sections,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-            return Text('No data found');
+            return const Text('No data found');
           }
           return ListView(
-            children: snapshot.data!.map((section) {
+            children: snapshot.data!.asMap().entries.map((entry) {
+              int idx = entry.key;
+              Section section = entry.value;
               return SectionWidget(
-                  section:
-                      section); // Adjusted to correctly reference SectionWidget
+                section: section,
+                isSlider: idx == 0, // Only the first section will be a slider
+              );
             }).toList(),
           );
         },
@@ -144,69 +146,226 @@ class Movie {
   final String title;
   final String? poster;
   final String? banner;
+  final String? hlsUrl; // Added HLS URL property
 
-  Movie({required this.id, required this.title, this.poster, this.banner});
+  Movie(
+      {required this.id,
+      required this.title,
+      this.poster,
+      this.banner,
+      this.hlsUrl});
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
       id: json['_id'],
       title: json['title'],
       poster: json.containsKey('poster')
-          // ignore: prefer_interpolation_to_compose_strings
           ? "https://cdn.webdevxyz.com/" + json['poster']
           : null,
       banner: json.containsKey('banner')
-          // ignore: prefer_interpolation_to_compose_strings
           ? "https://cdn.webdevxyz.com/" + json['banner']
           : null,
+      hlsUrl: json['video'] != null ? json['video']['hlsUrl'] : null,
     );
   }
 }
 
 class SectionWidget extends StatelessWidget {
   final Section section;
+  final bool isSlider;
 
-  const SectionWidget({Key? key, required this.section}) : super(key: key);
+  const SectionWidget({
+    Key? key,
+    required this.section,
+    this.isSlider = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 220.0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text(section.name,
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-          ),
-          Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: section.list.length,
-              itemBuilder: (context, index) {
-                final movie = section.list[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DetailsPage(
-                                contentId: movie
-                                    .id))); // Make sure this navigates correctly
-                  },
-                  child: CachedNetworkImage(
-                    imageUrl: movie.poster ?? '',
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
-                );
-              },
+    if (isSlider) {
+      return buildSlider(context);
+    } else {
+      return SizedBox(
+        height: 220.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                section.name,
+                style: const TextStyle(
+                    fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(child: buildListView(context)),
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget buildImageWidget(Movie movie, BuildContext context) {
+    return Stack(
+      children: [
+        CachedNetworkImage(
+          imageUrl: movie.banner ?? '',
+          fit: BoxFit.cover,
+          errorWidget: (context, url, error) => Container(
+            color: Colors.grey, // Background color for error or null image
+            alignment: Alignment.center,
+            child: Text(
+              movie.title,
+              style: TextStyle(color: Colors.white, fontSize: 16),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-        ],
+          // When the image is fully loaded, hide the loader
+          // Otherwise, show the loader
+          progressIndicatorBuilder: (context, url, downloadProgress) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget buildSlider(BuildContext context) {
+    return CarouselSlider.builder(
+      itemCount: section.list.length,
+      itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
+        final movie = section.list[itemIndex];
+        return GestureDetector(
+          onTap: () {}, // Tap handling is done on the play button
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                buildImageWidget(movie, context),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      movie.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: IconButton(
+                    iconSize: 50.0,
+                    icon:
+                        const Icon(Icons.play_circle_fill, color: Colors.white),
+                    onPressed: () {
+                      if (movie.hlsUrl != null) {
+                        String updatedHlsUrl = "https://cdn.webdevxyz.com" +
+                            movie.hlsUrl!.replaceFirst('/files', '/media');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlayerScreen(
+                              hlsUrl: updatedHlsUrl,
+                              title: movie.title,
+                              isTrailer: false,
+                            ),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('HLS URL not available')),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      options: CarouselOptions(
+        autoPlay: true,
+        aspectRatio: 16 / 7,
+        enlargeCenterPage: true,
       ),
+    );
+  }
+
+  Widget buildListView(BuildContext context) {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: section.list.length,
+      itemBuilder: (context, index) {
+        final movie = section.list[index];
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailsPage(contentId: movie.id),
+              ),
+            );
+          },
+          child: Container(
+            color: Colors.grey, // Background color while the image loads
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CachedNetworkImage(
+                  imageUrl: movie.poster ?? '',
+                  fit: BoxFit.cover,
+                  width: 150, // Adjust the width as needed
+                  height: 200, // Adjust the height as needed
+                  errorWidget: (context, url, error) => Container(
+                    color:
+                        Colors.grey, // Background color for error or null image
+                    alignment: Alignment.center,
+                    child: Text(
+                      movie.title,
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                // Loader shown only when image is loading
+                if (movie.poster != null)
+                  FutureBuilder<void>(
+                    future: precacheImage(
+                      NetworkImage(movie.poster!),
+                      context,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
