@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'details.dart';
+import 'details.dart'; // Make sure this path correctly leads to your DetailsPage
 
 void main() {
   runApp(const MyApp());
@@ -19,42 +19,30 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'BBPlay',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Colors.blue,
-        hintColor: Colors.purple,
+        primaryColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
         appBarTheme: AppBarTheme(
-          color: Colors.black45,
-          iconTheme: const IconThemeData(color: Colors.white),
-          toolbarTextStyle: const TextTheme(
-            titleLarge: TextStyle(
-              color: Colors.white,
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ).bodyMedium,
-          titleTextStyle: const TextTheme(
-            titleLarge: TextStyle(
-              color: Colors.white,
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ).titleLarge,
+          color: Colors.white,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor:
-              Colors.grey[900], // Choose a color that contrasts well with white
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white.withOpacity(
-              0.6), // Slightly dim unselected items for better visual distinction
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
         ),
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -92,47 +80,46 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {},
-        ),
-        title: const Text('BBPlay', style: TextStyle(color: Colors.white)),
+        leading: IconButton(icon: Icon(Icons.menu), onPressed: () {}),
+        title: Text('BBPlay', style: TextStyle(color: Colors.black)),
+        centerTitle: true,
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {},
-          ),
+          IconButton(icon: Icon(Icons.search), onPressed: () {}),
         ],
       ),
       body: FutureBuilder<List<Section>>(
         future: sections,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SectionCarousel(section: snapshot.data![index]);
-                }
-                return SectionWidget(section: snapshot.data![index]);
-              },
-            );
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("${snapshot.error}"));
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+            return Text('No data found');
           }
-          return const Center(child: CircularProgressIndicator());
+          return ListView(
+            children: snapshot.data!.map((section) {
+              return SectionWidget(
+                  section:
+                      section); // Adjusted to correctly reference SectionWidget
+            }).toList(),
+          );
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
               icon: Icon(Icons.category), label: 'Categories'),
           BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
           BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
@@ -175,102 +162,14 @@ class Movie {
   }
 }
 
-class SectionCarousel extends StatelessWidget {
-  final Section section;
-
-  SectionCarousel({required this.section});
-
-  @override
-  Widget build(BuildContext context) {
-    return CarouselSlider(
-      options: CarouselOptions(
-        enlargeCenterPage: true,
-        autoPlay: true,
-        autoPlayInterval: const Duration(seconds: 10),
-        autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        aspectRatio: 16 / 9,
-      ),
-      items: section.list.map((movie) {
-        return Builder(
-          builder: (BuildContext context) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailsPage(contentId: movie.id),
-                  ),
-                );
-              },
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: ClipRRect(
-                  // Modify this line to apply borderRadius to all corners
-                  borderRadius: BorderRadius.circular(10),
-                  child: Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            10), // This applies the border radius to the image
-                        child: CachedNetworkImage(
-                          imageUrl: movie.banner!,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => Container(
-                            alignment: Alignment.center,
-                            color: Colors.grey,
-                            child: const Icon(Icons.error, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5, horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            // This decoration applies to the text container, adjust here if you want to change the bottom container's border radius
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(10),
-                              bottomRight: Radius.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            movie.title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      }).toList(),
-    );
-  }
-}
-
 class SectionWidget extends StatelessWidget {
   final Section section;
 
-  const SectionWidget({super.key, required this.section});
+  const SectionWidget({Key? key, required this.section}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 220.0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,60 +178,33 @@ class SectionWidget extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Text(section.name,
-                style: const TextStyle(
-                    fontSize: 16.0, fontWeight: FontWeight.w500)),
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
           ),
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.zero,
               scrollDirection: Axis.horizontal,
               itemCount: section.list.length,
               itemBuilder: (context, index) {
-                return MovieCard(movie: section.list[index]);
+                final movie = section.list[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DetailsPage(
+                                contentId: movie
+                                    .id))); // Make sure this navigates correctly
+                  },
+                  child: CachedNetworkImage(
+                    imageUrl: movie.poster ?? '',
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                );
               },
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class MovieCard extends StatelessWidget {
-  final Movie movie;
-
-  const MovieCard({super.key, required this.movie});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => DetailsPage(contentId: movie.id)));
-      },
-      child: Material(
-        elevation: 4.0,
-        borderRadius: BorderRadius.circular(5.0),
-        child: Container(
-          width: 120,
-          height: 160,
-          padding: const EdgeInsets.all(4.0),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: CachedNetworkImage(
-              imageUrl: movie.poster!,
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => Container(
-                color: Colors.grey,
-                child: const Icon(Icons.error, color: Colors.white),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
