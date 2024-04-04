@@ -186,7 +186,7 @@ class SectionWidget extends StatelessWidget {
       return buildSlider(context);
     } else {
       return SizedBox(
-        height: 220.0,
+        height: 190,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -310,11 +310,18 @@ class SectionWidget extends StatelessWidget {
   }
 
   Widget buildListView(BuildContext context) {
+    double cardWidth = 105; // Adjust the width as needed
+
     return ListView.builder(
+      padding: EdgeInsets.only(left: 16.0), // Add padding to the left
       scrollDirection: Axis.horizontal,
       itemCount: section.list.length,
       itemBuilder: (context, index) {
         final movie = section.list[index];
+
+        // Calculate card height based on the card width and the image's aspect ratio
+        double cardHeight = 200;
+
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -325,43 +332,61 @@ class SectionWidget extends StatelessWidget {
             );
           },
           child: Container(
-            color: Colors.grey, // Background color while the image loads
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: movie.poster ?? '',
-                  fit: BoxFit.cover,
-                  width: 150, // Adjust the width as needed
-                  height: 200, // Adjust the height as needed
-                  errorWidget: (context, url, error) => Container(
-                    color:
-                        Colors.grey, // Background color for error or null image
-                    alignment: Alignment.center,
-                    child: Text(
-                      movie.title,
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+            width: cardWidth,
+            height: cardHeight,
+            margin: EdgeInsets.only(right: 16.0), // Add margin between cards
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10.0), // Add border-radius
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 2), // changes position of shadow
                 ),
-                // Loader shown only when image is loading
-                if (movie.poster != null)
-                  FutureBuilder<void>(
-                    future: precacheImage(
-                      NetworkImage(movie.poster!),
-                      context,
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    },
-                  ),
               ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: movie.poster ?? '',
+                    fit: BoxFit.cover,
+                    width: double.infinity, // Use full width of the container
+                    height: double.infinity, // Use full height of the container
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors
+                          .grey, // Background color for error or null image
+                      alignment: Alignment.center,
+                      child: Text(
+                        movie.title,
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  // Loader shown only when image is loading
+                  if (movie.poster != null)
+                    FutureBuilder<void>(
+                      future: precacheImage(
+                        NetworkImage(movie.poster!),
+                        context,
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else {
+                          return SizedBox.shrink();
+                        }
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
         );
