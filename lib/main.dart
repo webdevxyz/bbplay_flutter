@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
         title: Text('BBPlay', style: TextStyle(color: Colors.black)),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.search), onPressed: () {}),
+          IconButton(icon: Icon(Icons.person), onPressed: () {}),
         ],
       ),
       body: FutureBuilder<List<Section>>(
@@ -114,11 +114,12 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.category), label: 'Categories'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.download), label: 'Downloads'),
         ],
       ),
     );
