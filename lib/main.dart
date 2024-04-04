@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -211,13 +213,15 @@ class SectionWidget extends StatelessWidget {
       children: [
         CachedNetworkImage(
           imageUrl: movie.banner ?? '',
-          fit: BoxFit.cover,
+          fit: BoxFit.cover, // Adjust the fit to cover the whole container
+          width: double.infinity,
+          height: double.infinity,
           errorWidget: (context, url, error) => Container(
             color: Colors.grey, // Background color for error or null image
             alignment: Alignment.center,
             child: Text(
               movie.title,
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -225,7 +229,7 @@ class SectionWidget extends StatelessWidget {
           // When the image is fully loaded, hide the loader
           // Otherwise, show the loader
           progressIndicatorBuilder: (context, url, downloadProgress) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           },
@@ -275,8 +279,8 @@ class SectionWidget extends StatelessWidget {
                         const Icon(Icons.play_circle_fill, color: Colors.white),
                     onPressed: () {
                       if (movie.hlsUrl != null) {
-                        String updatedHlsUrl = "https://cdn.webdevxyz.com" +
-                            movie.hlsUrl!.replaceFirst('/files', '/media');
+                        String updatedHlsUrl =
+                            "https://cdn.webdevxyz.com${movie.hlsUrl!.replaceFirst('/files', '/media')}";
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -313,7 +317,7 @@ class SectionWidget extends StatelessWidget {
     double cardWidth = 105; // Adjust the width as needed
 
     return ListView.builder(
-      padding: EdgeInsets.only(left: 16.0), // Add padding to the left
+      padding: const EdgeInsets.only(left: 16.0), // Add padding to the left
       scrollDirection: Axis.horizontal,
       itemCount: section.list.length,
       itemBuilder: (context, index) {
@@ -334,7 +338,8 @@ class SectionWidget extends StatelessWidget {
           child: Container(
             width: cardWidth,
             height: cardHeight,
-            margin: EdgeInsets.only(right: 16.0), // Add margin between cards
+            margin:
+                const EdgeInsets.only(right: 16.0), // Add margin between cards
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10.0), // Add border-radius
@@ -343,7 +348,7 @@ class SectionWidget extends StatelessWidget {
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 1,
                   blurRadius: 5,
-                  offset: Offset(0, 2), // changes position of shadow
+                  offset: const Offset(0, 2), // changes position of shadow
                 ),
               ],
             ),
@@ -363,7 +368,8 @@ class SectionWidget extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Text(
                         movie.title,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -379,9 +385,9 @@ class SectionWidget extends StatelessWidget {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return CircularProgressIndicator();
+                          return const CircularProgressIndicator();
                         } else {
-                          return SizedBox.shrink();
+                          return const SizedBox.shrink();
                         }
                       },
                     ),
