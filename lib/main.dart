@@ -87,11 +87,15 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
-        title: const Text('BBPlay', style: TextStyle(color: Colors.black)),
+        leading: Padding(
+          padding: EdgeInsets.all(15.0),
+          // Display the logo image
+          child: Image.asset('assets/images/logo.png'),
+        ),
+        // title: const Text('BBPlay', style: TextStyle(color: Colors.black)),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: const Icon(Icons.person), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
         ],
       ),
       body: RefreshIndicator(
@@ -127,12 +131,12 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
           BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.download), label: 'Downloads'),
+              icon: Icon(Icons.category), label: 'Categories'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Acount'),
         ],
       ),
     );
