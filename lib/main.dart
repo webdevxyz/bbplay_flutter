@@ -86,34 +86,43 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> _pages = <Widget>[
-      FutureBuilder<List<Section>>(
-        future: sections,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-            return const Text('No data found');
-          }
-          return ListView(
-            children: snapshot.data!.asMap().entries.map((entry) {
-              int idx = entry.key;
-              Section section = entry.value;
-              return SectionWidget(
-                section: section,
-                isSlider: idx == 0, // Only the first section will be a slider
-              );
-            }).toList(),
-          );
+      RefreshIndicator(
+        onRefresh: () async {
+          // Call setState to trigger the re-fetching of sections
+          setState(() {
+            sections = fetchSections();
+          });
         },
+        child: FutureBuilder<List<Section>>(
+          future: sections,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+              return const Text('No data found');
+            }
+            return ListView(
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // Ensure list is always scrollable
+              children: snapshot.data!.asMap().entries.map((entry) {
+                int idx = entry.key;
+                Section section = entry.value;
+                return SectionWidget(
+                  section: section,
+                  isSlider: idx == 0, // Only the first section will be a slider
+                );
+              }).toList(),
+            );
+          },
+        ),
       ),
       const MoviesPage(),
       const ShowsPage(),
       const CategoriesPage(),
       const AccountPage(),
     ];
-
     return Scaffold(
       appBar: CustomAppBar(
         titleText: 'BBPlay',
@@ -157,7 +166,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Text(titleText),
       actions: actions,
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       elevation: 0,
       centerTitle: true,
     );
