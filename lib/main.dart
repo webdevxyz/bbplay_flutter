@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -5,6 +7,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'details.dart'; // Make sure this path correctly leads to your DetailsPage
 import 'player.dart';
+import 'movies_page.dart';
+import 'shows_page.dart';
+import 'categories_page.dart';
+import 'account.dart';
 
 void main() {
   runApp(const MyApp());
@@ -86,11 +92,31 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
-    // Add navigation logic here if necessary. For now, it only sets the selected index.
 
     print("Nav Logic");
 
-    Navigator.pushNamed(context, '/account');
+    // Navigation logic based on selected index
+    switch (index) {
+      case 1:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => MoviesPage()));
+        break;
+      case 2:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ShowsPage()));
+        break;
+      case 3:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => CategoriesPage()));
+        break;
+      case 4:
+        // Assuming you already have an AccountPage defined
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AccountPage()));
+        break;
+      default:
+      // Stay on HomePage or navigate to an equivalent 'Home' section
+    }
   }
 
   Future<void> _refresh() async {

@@ -342,7 +342,7 @@ class _DetailsPageState extends State<DetailsPage> {
                               padding: const EdgeInsets.only(left: 0, top: 20),
                               child: Text(
                                 'Related Content',
-                                style: Theme.of(context).textTheme.headline6,
+                                style: Theme.of(context).textTheme.titleLarge,
                               ),
                             ),
                             SizedBox(
