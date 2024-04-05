@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -12,14 +10,20 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BBPlay',
       debugShowCheckedModeBanner: false,
+      // Light theme configuration
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Colors.white,
@@ -36,6 +40,8 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.grey,
         ),
       ),
+      // Optionally adjust dark theme or other theme configurations here if needed
+      themeMode: ThemeMode.light, // Force the app to use the light theme
       home: const HomePage(),
     );
   }
@@ -59,13 +65,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Section>> fetchSections() async {
-    final response = await http
-        .get(Uri.parse('https://encoder.webdevxyz.com/featured-section'));
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body)['data'];
-      return body.map((dynamic item) => Section.fromJson(item)).toList();
-    } else {
-      throw Exception('Failed to load sections');
+    try {
+      final response = await http
+          .get(Uri.parse('https://encoder.webdevxyz.com/featured-section'));
+      if (response.statusCode == 200) {
+        List<dynamic> body = jsonDecode(response.body)['data'];
+        return body.map((dynamic item) => Section.fromJson(item)).toList();
+      } else {
+        // Log or handle HTTP errors here
+        throw Exception(
+            'Failed to load sections with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the fetch operation
+      throw Exception('Failed to load sections: $e');
     }
   }
 
@@ -73,6 +86,11 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
+    // Add navigation logic here if necessary. For now, it only sets the selected index.
+
+    print("Nav Logic");
+
+    Navigator.pushNamed(context, '/account');
   }
 
   Future<void> _refresh() async {
@@ -125,9 +143,12 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
+        backgroundColor:
+            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        selectedItemColor:
+            Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+        unselectedItemColor:
+            Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -136,7 +157,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
           BottomNavigationBarItem(
               icon: Icon(Icons.category), label: 'Categories'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Acount'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Account',
+          ),
         ],
       ),
     );
