@@ -10,17 +10,6 @@ class AccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          Colors.lightBlue[50], // Set a light blue background color
-      appBar: AppBar(
-        title: const Text(
-          'Account',
-          style: TextStyle(
-            fontSize: 24, // Increase font size
-            fontWeight: FontWeight.bold, // Make font bold
-          ),
-        ),
-      ),
       body: Center(
         child: isLoggedIn()
             ? const Text(
@@ -49,7 +38,7 @@ class AccountPage extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(
-                          255, 48, 39, 176), // Set button background color
+                          255, 209, 209, 15), // Set button background color
                       padding: const EdgeInsets.symmetric(
                           horizontal: 30, vertical: 15), // Set button padding
                     ),

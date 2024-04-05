@@ -5,8 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'player.dart';
-import 'casts.dart';
+import 'player_page.dart';
+import 'casts_page.dart';
 
 class DetailsPage extends StatefulWidget {
   final String contentId;

@@ -1,6 +1,6 @@
 // cast_details_page.dart
 import 'package:flutter/material.dart';
-import 'details.dart'; // Import the file where Cast class is defined.
+import 'details_page.dart'; // Import the file where Cast class is defined.
 
 class CastDetailsPage extends StatelessWidget {
   final Cast castMember;

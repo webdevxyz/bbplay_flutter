@@ -1,35 +1,29 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
-
+// Your existing imports
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'details.dart'; // Make sure this path correctly leads to your DetailsPage
-import 'player.dart';
-import 'movies_page.dart';
-import 'shows_page.dart';
-import 'categories_page.dart';
-import 'account.dart';
+import 'pages/details_page.dart'; // Ensure this path is correct
+import 'pages/player_page.dart';
+import 'pages/movies_page.dart';
+import 'pages/shows_page.dart';
+import 'pages/categories_page.dart';
+import 'pages/account_page.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key});
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    // MaterialApp setup as before
     return MaterialApp(
       title: 'BBPlay',
       debugShowCheckedModeBanner: false,
-      // Light theme configuration
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColor: Colors.white,
@@ -46,23 +40,24 @@ class _MyAppState extends State<MyApp> {
           unselectedItemColor: Colors.grey,
         ),
       ),
-      // Optionally adjust dark theme or other theme configurations here if needed
-      themeMode: ThemeMode.light, // Force the app to use the light theme
+      themeMode: ThemeMode.light,
       home: const HomePage(),
     );
   }
 }
 
+// HomePage widget as you defined it, ensuring it includes all necessary functionalities
+
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<List<Section>> sections;
   int _selectedIndex = 0;
+  late Future<List<Section>> sections;
 
   @override
   void initState() {
@@ -71,124 +66,137 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Section>> fetchSections() async {
-    try {
-      final response = await http
-          .get(Uri.parse('https://encoder.webdevxyz.com/featured-section'));
-      if (response.statusCode == 200) {
-        List<dynamic> body = jsonDecode(response.body)['data'];
-        return body.map((dynamic item) => Section.fromJson(item)).toList();
-      } else {
-        // Log or handle HTTP errors here
-        throw Exception(
-            'Failed to load sections with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      // Handle any errors that occur during the fetch operation
-      throw Exception('Failed to load sections: $e');
+    final response = await http
+        .get(Uri.parse('https://encoder.webdevxyz.com/featured-section'));
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body)['data'];
+      return body.map((dynamic item) => Section.fromJson(item)).toList();
+    } else {
+      throw Exception(
+          'Failed to load sections with status code: ${response.statusCode}');
     }
   }
 
-  void _onItemTapped(int index) {
+  void onBottomNavItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-    });
-
-    print("Nav Logic");
-
-    // Navigation logic based on selected index
-    switch (index) {
-      case 1:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => MoviesPage()));
-        break;
-      case 2:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ShowsPage()));
-        break;
-      case 3:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CategoriesPage()));
-        break;
-      case 4:
-        // Assuming you already have an AccountPage defined
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => AccountPage()));
-        break;
-      default:
-      // Stay on HomePage or navigate to an equivalent 'Home' section
-    }
-  }
-
-  Future<void> _refresh() async {
-    setState(() {
-      sections = fetchSections();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _pages = <Widget>[
+      FutureBuilder<List<Section>>(
+        future: sections,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+            return const Text('No data found');
+          }
+          return ListView(
+            children: snapshot.data!.asMap().entries.map((entry) {
+              int idx = entry.key;
+              Section section = entry.value;
+              return SectionWidget(
+                section: section,
+                isSlider: idx == 0, // Only the first section will be a slider
+              );
+            }).toList(),
+          );
+        },
+      ),
+      const MoviesPage(),
+      const ShowsPage(),
+      const CategoriesPage(),
+      const AccountPage(),
+    ];
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: EdgeInsets.all(15.0),
-          // Display the logo image
-          child: Image.asset('assets/images/logo.png'),
-        ),
-        // title: const Text('BBPlay', style: TextStyle(color: Colors.black)),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: FutureBuilder<List<Section>>(
-          future: sections,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-              return const Text('No data found');
-            }
-            return ListView(
-              children: snapshot.data!.asMap().entries.map((entry) {
-                int idx = entry.key;
-                Section section = entry.value;
-                return SectionWidget(
-                  section: section,
-                  isSlider: idx == 0, // Only the first section will be a slider
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor:
-            Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor:
-            Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-        unselectedItemColor:
-            Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
-          BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.category), label: 'Categories'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Account',
+      appBar: CustomAppBar(
+        titleText: 'BBPlay',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              // Intentionally left blank for demonstration
+            },
           ),
         ],
       ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+      ),
+    );
+  }
+}
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String titleText;
+  final List<Widget>? actions;
+
+  const CustomAppBar({super.key, required this.titleText, this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Image.asset('assets/images/logo.png'),
+      ),
+      title: Text(titleText),
+      actions: actions,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class CustomBottomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final void Function(int) onItemTapped;
+
+  const CustomBottomNavBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      backgroundColor:
+          Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      selectedItemColor:
+          Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+      unselectedItemColor:
+          Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+      currentIndex: selectedIndex,
+      onTap: onItemTapped,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.movie), label: 'Movies'),
+        BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'Shows'),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.category), label: 'Categories'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
+      ],
     );
   }
 }
@@ -240,10 +248,10 @@ class SectionWidget extends StatelessWidget {
   final bool isSlider;
 
   const SectionWidget({
-    Key? key,
+    super.key,
     required this.section,
     this.isSlider = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

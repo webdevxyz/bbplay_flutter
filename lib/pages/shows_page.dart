@@ -5,9 +5,8 @@ class ShowsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Shows')),
-      body: const Center(child: Text('Shows Page')),
+    return const Scaffold(
+      body: Center(child: Text('Shows Page')),
     );
   }
 }
