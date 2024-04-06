@@ -4,7 +4,7 @@ import 'package:ott_mobile/pages/login_page.dart';
 import 'package:ott_mobile/pages/register_page.dart';
 
 bool isLoggedIn() {
-  return false;
+  return false; // You would replace this with your actual authentication logic.
 }
 
 class AccountPage extends StatelessWidget {
@@ -22,51 +22,85 @@ class AccountPage extends StatelessWidget {
                   color: Colors.green,
                 ),
               )
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text(
-                    'Welcome to The BrandBook Play!',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegisterPage()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black.withOpacity(0.8),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 10),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const FractionallySizedBox(
+                        widthFactor: 0.8,
+                        child: Text(
+                          'Welcome to BrandBook Play',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Get Started',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                      const SizedBox(height: 8),
+                      const FractionallySizedBox(
+                        widthFactor: 0.6,
+                        child: Text(
+                          'Explore the latest trending movies, shows, web series and many more.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6.0, vertical: 6.0),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegisterPage()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.deepPurple,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 24),
+                              ),
+                              child: const Text('Register'),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6.0, vertical: 6.0),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const LoginPage()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.lightBlue,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 24),
+                              ),
+                              child: const Text('Sign In'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
-                    },
-                    child: const Text('Already have an Account? Sign In'),
-                  ),
-                ],
+                ),
               ),
       ),
     );
