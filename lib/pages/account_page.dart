@@ -41,7 +41,7 @@ class AccountPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       const FractionallySizedBox(
-                        widthFactor: 0.6,
+                        widthFactor: 0.8,
                         child: Text(
                           'Explore the latest trending movies, shows, web series and many more.',
                           textAlign: TextAlign.center,
