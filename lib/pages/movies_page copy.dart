@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import '../controller/movies_controller.dart';
 import '../widgets/movie_card_widget.dart';
 
-class ShowsPage extends StatefulWidget {
-  const ShowsPage({Key? key}) : super(key: key);
+class MoviesPage extends StatefulWidget {
+  const MoviesPage({Key? key}) : super(key: key);
 
   @override
-  _ShowsPageState createState() => _ShowsPageState();
+  _MoviesPageState createState() => _MoviesPageState();
 }
 
-class _ShowsPageState extends State<ShowsPage> {
+class _MoviesPageState extends State<MoviesPage> {
   late Future<List<Section>> sections;
 
   @override
   void initState() {
     super.initState();
     // Assuming '660a8afec3938c5385d3d173' is the key you mentioned; replace it as necessary
-    sections = ApiController().fetchSections('660a87e6c3938c5385d3d0e4');
+    sections = ApiController().fetchSections('660a8afec3938c5385d3d173');
 
     print(sections);
   }
