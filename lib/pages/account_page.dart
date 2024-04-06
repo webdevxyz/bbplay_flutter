@@ -1,4 +1,7 @@
+// account_page.dart
 import 'package:flutter/material.dart';
+import 'package:ott_mobile/pages/login_page.dart';
+import 'package:ott_mobile/pages/register_page.dart';
 
 bool isLoggedIn() {
   return false;
@@ -15,55 +18,53 @@ class AccountPage extends StatelessWidget {
             ? const Text(
                 'You are logged in',
                 style: TextStyle(
-                  fontSize: 20, // Increase font size for login text
-                  color: Colors.green, // Set text color to green
+                  fontSize: 20,
+                  color: Colors.green,
                 ),
               )
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   const Text(
-                    'Welcome to BB Play',
+                    'Welcome to The BrandBook Play!',
                     style: TextStyle(
-                      fontSize: 28, // Increase font size for welcome text
-                      fontWeight: FontWeight.bold, // Make font bold
-                      color: Color.fromARGB(
-                          255, 0, 0, 0), // Set text color to deep purple
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigate to Register Page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const RegisterPage()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(
-                          255, 209, 209, 15), // Set button background color
+                      backgroundColor: Colors.black.withOpacity(0.8),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 15), // Set button padding
+                          horizontal: 40, vertical: 10),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
                     ),
                     child: const Text(
-                      'Register',
-                      style: TextStyle(
-                          fontSize: 18), // Increase font size for button text
+                      'Get Started',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  const SizedBox(height: 10), // Adjust spacing
-                  ElevatedButton(
+                  TextButton(
                     onPressed: () {
-                      // Navigate to Login Page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.orange, // Set button background color
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 15), // Set button padding
-                    ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                          fontSize: 18), // Increase font size for button text
-                    ),
+                    child: const Text('Already have an Account? Sign In'),
                   ),
                 ],
               ),
