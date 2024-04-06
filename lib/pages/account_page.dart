@@ -1,14 +1,70 @@
-// account_page.dart
 import 'package:flutter/material.dart';
 import 'package:ott_mobile/pages/login_page.dart';
 import 'package:ott_mobile/pages/register_page.dart';
+import 'package:ott_mobile/pages/select_profile_page.dart';
+import 'package:ott_mobile/pages/favourite_page.dart';
+import 'package:ott_mobile/pages/watch_history_page.dart';
+import 'package:ott_mobile/pages/contact_us_page.dart';
+import 'package:ott_mobile/pages/settings_page.dart';
+import 'package:ott_mobile/pages/logout_page.dart';
 
 bool isLoggedIn() {
-  return false; // You would replace this with your actual authentication logic.
+  return false; // Replace this with your actual authentication logic.
 }
 
 class AccountPage extends StatelessWidget {
-  const AccountPage({super.key});
+  AccountPage({super.key}); // Removed the const from the constructor
+
+  final List<Map<String, dynamic>> menuItems = [
+    {
+      "name": "Login",
+      "icon": Icons.login,
+      "show": true,
+      "onTap": const LoginPage(),
+    },
+    {
+      "name": "Register",
+      "icon": Icons.person_add,
+      "show": true,
+      "onTap": const RegisterPage(),
+    },
+    {
+      "name": "Select Profile",
+      "icon": Icons.group,
+      "show": true,
+      "onTap": SelectProfilePage(),
+    },
+    {
+      "name": "My Favourites",
+      "icon": Icons.favorite,
+      "show": true,
+      "onTap": FavouritePage(),
+    },
+    {
+      "name": "Watch History",
+      "icon": Icons.history,
+      "show": true,
+      "onTap": WatchHistoryPage(),
+    },
+    {
+      "name": "Contact Us",
+      "icon": Icons.contact_support,
+      "show": true,
+      "onTap": ContactUsPage(),
+    },
+    {
+      "name": "Settings",
+      "icon": Icons.settings,
+      "show": true,
+      "onTap": SettingsPage(),
+    },
+    {
+      "name": "Logout",
+      "icon": Icons.logout,
+      "show": true,
+      "onTap": LogoutPage(),
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -17,89 +73,35 @@ class AccountPage extends StatelessWidget {
         child: isLoggedIn()
             ? const Text(
                 'You are logged in',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.green,
-                ),
+                style: TextStyle(fontSize: 20, color: Colors.green),
               )
             : SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const FractionallySizedBox(
-                        widthFactor: 0.8,
-                        child: Text(
-                          'Welcome to BrandBook Play',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const FractionallySizedBox(
-                        widthFactor: 0.8,
-                        child: Text(
-                          'Explore the latest trending movies, shows, web series and many more.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6.0, vertical: 6.0),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const RegisterPage()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.deepPurple,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 24),
-                              ),
-                              child: const Text('Register'),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6.0, vertical: 6.0),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const LoginPage()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.lightBlue,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 24),
-                              ),
-                              child: const Text('Sign In'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Since it's inside a SingleChildScrollView
+                  itemCount: menuItems.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final item = menuItems[index];
+                    if (!item["show"]) {
+                      return const SizedBox
+                          .shrink(); // Do not render if "show" is false
+                    }
+                    return ListTile(
+                      leading: Icon(item["icon"]),
+                      title: Text(item["name"]),
+                      onTap: () {
+                        // Navigator logic here
+                        var page = item["onTap"];
+                        if (page != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => page),
+                          );
+                        }
+                      },
+                    );
+                  },
                 ),
               ),
       ),

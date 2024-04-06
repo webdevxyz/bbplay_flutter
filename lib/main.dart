@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
       const MoviesPage(),
       const ShowsPage(),
       const CategoriesPage(),
-      const AccountPage(),
+      AccountPage(),
     ];
     return Scaffold(
       appBar: CustomAppBar(
