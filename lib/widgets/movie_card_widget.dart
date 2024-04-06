@@ -1,7 +1,7 @@
-// movie_card_widget.dart
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../controller/movies_controller.dart';
+import '../pages/details_page.dart'; // Import the DetailsPage
 
 class MovieCardWidget extends StatelessWidget {
   final Movie movie;
@@ -10,42 +10,80 @@ class MovieCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Assuming your Movie class contains a poster URL in a field called `poster`
     final posterUrl = movie.poster ?? '';
     final title = movie.title;
 
+    double cardWidth = 105; // Adjust the width as needed
+    double cardHeight =
+        200; // Calculate card height based on the card width and the image's aspect ratio
+
     return GestureDetector(
       onTap: () {
-        // Insert your navigation logic here, e.g., to a detailed movie page
-      },
-      child: GridTile(
-        footer: Material(
-          color: Colors.transparent,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(4)),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsPage(contentId: movie.id),
           ),
-          clipBehavior: Clip.antiAlias,
-          child: GridTileBar(
-            backgroundColor: Colors.black45,
-            title: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
+        );
+      },
+      child: Container(
+        width: cardWidth,
+        height: cardHeight,
+        margin: const EdgeInsets.only(right: 16.0), // Add margin between cards
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0), // Add border-radius
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2), // Changes position of shadow
             ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CachedNetworkImage(
+                imageUrl: posterUrl,
+                fit: BoxFit.cover,
+                width: double.infinity, // Use full width of the container
+                height: double.infinity, // Use full height of the container
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Container(
+                  color:
+                      Colors.grey, // Background color for error or null image
+                  alignment: Alignment.center,
+                  child: Text(
+                    title,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              // Loader shown only when image is loading
+              if (posterUrl.isNotEmpty)
+                FutureBuilder<void>(
+                  future: precacheImage(
+                    NetworkImage(posterUrl),
+                    context,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+            ],
           ),
         ),
-        child: posterUrl.isNotEmpty
-            ? CachedNetworkImage(
-                imageUrl: posterUrl,
-                placeholder: (context, url) =>
-                    const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fit: BoxFit.cover,
-              )
-            : const Center(
-                child: Icon(Icons.movie),
-              ),
       ),
     );
   }

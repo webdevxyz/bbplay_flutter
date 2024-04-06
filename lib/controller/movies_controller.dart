@@ -1,4 +1,3 @@
-// api_controller.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -8,22 +7,18 @@ class ApiController {
   Future<List<Section>> fetchSections(String key) async {
     final response = await http.get(Uri.parse('$_baseUrl$key'));
     if (response.statusCode == 200) {
-      // Print the entire response body for debugging
-      print("Response body: ${response.body}");
-
       final Map<String, dynamic> decodedBody = jsonDecode(response.body);
-      // Assuming 'name' is at the same level as 'data' based on your response sample
-      final String sectionName = decodedBody['name'];
-      List<dynamic> body = decodedBody['data'];
+
+      // Correcting the way to access the 'list' within 'data'
+      List<dynamic> movieListData = decodedBody['data']['list'];
 
       // Create a Section with the name and list of movies
-      List<Section> sections = [
-        Section(
-            name: sectionName,
-            list: body.map((dynamic item) => Movie.fromJson(item)).toList())
-      ];
+      Section section = Section(
+        name: decodedBody['name'],
+        list: movieListData.map<Movie>((item) => Movie.fromJson(item)).toList(),
+      );
 
-      return sections;
+      return [section]; // Return a list containing the single section
     } else {
       throw Exception(
           'Failed to load sections with status code: ${response.statusCode}');
@@ -36,12 +31,8 @@ class Section {
   final List<Movie> list;
 
   Section({required this.name, required this.list});
-  factory Section.fromJson(Map<String, dynamic> json) {
-    // Use a null-aware operator before casting to handle null safely
-    var list = (json['list'] as List?) ?? [];
-    List<Movie> movieList = list.map((i) => Movie.fromJson(i)).toList();
-    return Section(name: json['name'], list: movieList);
-  }
+
+  // Assuming the Section.fromJson is not needed anymore as the updated method handles creation
 }
 
 class Movie {
@@ -49,14 +40,15 @@ class Movie {
   final String title;
   final String? poster;
   final String? banner;
-  final String? hlsUrl; // Added HLS URL property
+  final String? hlsUrl; // HLS URL property
 
-  Movie(
-      {required this.id,
-      required this.title,
-      this.poster,
-      this.banner,
-      this.hlsUrl});
+  Movie({
+    required this.id,
+    required this.title,
+    this.poster,
+    this.banner,
+    this.hlsUrl,
+  });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
